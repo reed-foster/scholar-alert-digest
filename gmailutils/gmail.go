@@ -28,13 +28,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 	"sync"
 	"time"
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/bzz/scholar-alert-digest/gmailutils/token"
+	//"github.com/bzz/scholar-alert-digest/gmailutils/token"
 
 	"github.com/cheggaaa/pb/v3"
 	"golang.org/x/oauth2"
@@ -77,12 +78,24 @@ func getClient(config *oauth2.Config, tokFile string) *http.Client {
 	// The tokFile stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	tok, err := token.FromFile(tokFile)
+	cmd := exec.Command("oama", "access", "reed.a.foster@gmail.com")
+	stdout, err := cmd.Output()
 	if err != nil {
-		tok = token.FromWeb(config)
-		token.Save(tokFile, tok)
+		log.Fatalf(err.Error())
 	}
+	tok := &oauth2.Token{}
+	tok.AccessToken = string(stdout)
+	//tok, err := config.Exchange(context.Background(), string(stdout))
+	//if err != nil {
+	//	log.Fatalf("Unable to retrieve token from oama: %v", err)
+	//}
 	return config.Client(context.Background(), tok)
+	//tok, err := token.FromFile(tokFile)
+	//if err != nil {
+	//	tok = token.FromWeb(config)
+	//	token.Save(tokFile, tok)
+	//}
+	//return config.Client(context.Background(), tok)
 }
 
 // FetchLabels fetches the list of labels, as returned by Gmail using authorized http Client.

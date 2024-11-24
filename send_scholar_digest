@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+
+# uses https://github.com/bzz/scholar-alert-digest
+
+#SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=/home/reedf/Dropbox\ \(MIT\)/scholar-alert-digest
+body=$(go run "$SCRIPT_DIR/main.go" -l 'google scholar' -authors -html -mark)
+if [[ -z $(uname -r | grep arch) ]]; then
+    echo $body | mailx -a 'Content-Type: text/html' -s "scholar-digest" reedf@mit.edu
+else
+    {
+        echo "From: Reed Foster"
+        echo "To: reedf@mit.edu"
+        echo "MIME-Version: 1.0"
+        echo "Content-Type: text/html"
+        echo "Subject: scholar-digest"
+        echo ""
+        echo $body
+    } | sendmail -t
+fi
