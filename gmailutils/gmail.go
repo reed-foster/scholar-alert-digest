@@ -82,23 +82,15 @@ func getClient(config *oauth2.Config, tokFile string) *http.Client {
 	stdout, err := cmd.Output()
 	tokstr := "{\"" + strings.Replace(strings.TrimRight(string(stdout), "\n"), "\n", "\", \"", -1) + "\"}"
 	tokstr = strings.Replace(tokstr, ": ", "\": \"", -1)
-	fmt.Printf(tokstr)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
 	tok := &oauth2.Token{}
 	err = json.Unmarshal([]byte(tokstr), &tok)
-	//tok, err := config.Exchange(context.Background(), string(stdout))
 	if err != nil {
-		log.Fatalf("Unable to retrieve token from oama: %v", err)
+		log.Fatalf("Unable to parse token from oama output: %v", err)
 	}
 	return config.Client(context.Background(), tok)
-	//tok, err := token.FromFile(tokFile)
-	//if err != nil {
-	//	tok = token.FromWeb(config)
-	//	token.Save(tokFile, tok)
-	//}
-	//return config.Client(context.Background(), tok)
 }
 
 // FetchLabels fetches the list of labels, as returned by Gmail using authorized http Client.
