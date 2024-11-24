@@ -78,17 +78,20 @@ func getClient(config *oauth2.Config, tokFile string) *http.Client {
 	// The tokFile stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	cmd := exec.Command("oama", "access", "reed.a.foster@gmail.com")
+	cmd := exec.Command("oama", "show", "reed.a.foster@gmail.com")
 	stdout, err := cmd.Output()
+	tokstr := "{\"" + strings.Replace(strings.TrimRight(string(stdout), "\n"), "\n", "\", \"", -1) + "\"}"
+	tokstr = strings.Replace(tokstr, ": ", "\": \"", -1)
+	fmt.Printf(tokstr)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
 	tok := &oauth2.Token{}
-	tok.AccessToken = string(stdout)
+	err = json.Unmarshal([]byte(tokstr), &tok)
 	//tok, err := config.Exchange(context.Background(), string(stdout))
-	//if err != nil {
-	//	log.Fatalf("Unable to retrieve token from oama: %v", err)
-	//}
+	if err != nil {
+		log.Fatalf("Unable to retrieve token from oama: %v", err)
+	}
 	return config.Client(context.Background(), tok)
 	//tok, err := token.FromFile(tokFile)
 	//if err != nil {
