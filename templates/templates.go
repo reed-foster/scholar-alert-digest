@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"html/template"
 	"io"
 	"log"
@@ -267,7 +268,8 @@ func (r *HTMLRenderer) Render(out io.Writer, st *papers.Stats, unread, read pape
 	// rootLayout requires 3 sub-templates
 	title := `{{ define "title" }}scholar alert digest{{ end }}`
 	style := fmt.Sprintf(`{{ define "style" }}%s{{ end }}`, r.style)
-	body := fmt.Sprintf(`{{ define "body" }}%s{{ end }}`, htmlBuf.String())
+	body_str := strings.Replace(strings.Replace(htmlBuf.String(), "{{", "{ {", -1), "}}", "} }", -1)
+	body := fmt.Sprintf(`{{ define "body" }}%s{{ end }}`, body_str)
 
 	// TODO(bzz): move tmpl construction out of .Render(), so there is either:
 	// - only one .Clone() + .Parese() for dynamic "body" template, generated from MD
